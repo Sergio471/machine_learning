@@ -33,25 +33,16 @@ vector<pair<double, double>> get_random_points(int k, int b, int s, int e, int d
 }
 
 // gradient descent
-pair<double, double> get_kb(vector<pair<double, double>>& points) {
-    double k = 0.0f, b = 0.0f;
+pair<double, double> get_kb(const vector<pair<double, double>>& points) {
+    double k = 100.0f, b = 100.0f;
 
-    {
-        double err = 0.0f;
-        for (auto& p : points) {
-            err += pow(p.second - (p.first * k + b), 2);
-        }
-        err /= points.size();
-        cout << "before err: " << err << endl;
-    }
-    
-    double alpha_k = 0.000000001;
-    double alpha_b = 0.000005;
+    double alpha_k = 0.000001;
+    double alpha_b = 0.0005;
     int N = points.size();
     double err = 1000000.0f;
     double dk = 0.0f;// -- dE/dk
     double db = 0.0f;// -- dE/db
-    while (err > 0.05) {
+    while (err > 15.0) {
         dk = 0.0f;
         db = 0.0f;
         for (auto& p : points) {
@@ -63,30 +54,22 @@ pair<double, double> get_kb(vector<pair<double, double>>& points) {
         db /= N;
         db *= 2;
         
-        double new_k = k - alpha_k * dk;
-        double new_b = b - alpha_b * db;
+        k = k - alpha_k * dk;
+        b = b - alpha_b * db;
         
-        float new_err = 0.0f;
+        err = 0.0f;
         for (auto& p : points) {
-            new_err += pow(p.second - (p.first * new_k + new_b), 2);
+            err += pow(p.second - (p.first * k + b), 2);
         }
-        new_err /= N;
-
-        if (new_err < err - 0.001) {
-            k = new_k;
-            b = new_b;
-            err = new_err;
-        } else {
-            break;
-        }
+        err /= N;
     }
-    cout << "after err: " << err << endl;
+    cout << "Simple grad desc error: " << err << endl;
     
     return {k, b};
 }
 
 // stochastic gd
-vector<double> get_ks(vector<pair<double, double>>& points) {
+vector<double> get_ks(const vector<pair<double, double>>& points) {
     double k0 = 10.0, k1 = 10.0, k2 = 10.0, k3 = 10.0;
     
     double alpha_k0 = 0.0001;
@@ -122,15 +105,10 @@ vector<double> get_ks(vector<pair<double, double>>& points) {
         dk2 /= (batch_size / 2);
         dk3 /= (batch_size / 2);        
         
-        cout << "dks: " << dk0 << " " << dk1 << " " << dk2 << " " << dk3 << endl;
-        
         k0 = k0 - alpha_k0 * dk0;
         k1 = k1 - alpha_k1 * dk1;
         k2 = k2 - alpha_k2 * dk2;
         k3 = k3 - alpha_k3 * dk3;                      
-        
-        cout << "ks: " << k0 << " " << k1 << " " << k2 << " " << k3 << endl;
-        
     }
                       
     err = 0.0f;
@@ -144,7 +122,7 @@ vector<double> get_ks(vector<pair<double, double>>& points) {
         err += skob;
     }
     err /= points.size();    
-    cout << "Err: " << err << endl;
+    cout << "Stochastic err: " << err << endl;
     
     return {k0, k1, k2, k3};
 }
@@ -152,26 +130,17 @@ vector<double> get_ks(vector<pair<double, double>>& points) {
 int main() {
     srand(time(0));
 
-    if (false)
-    {
-        // generated input
-        int k = 2, b = 10;
-        vector<pair<double, double>> points = get_random_points(k, b, 0, 100, 0);
+    cout << "Stachastic with many params" << endl;
+    const vector<pair<double, double>> points = get_points();
+    vector<double> ks = get_ks(points);
+    cout << ks[0] << " + " << ks[1] << "*x + " << ks[2] << "*x^2 + " << ks[3] << "*x^3" << endl;
 
-        pair<double, double> kb = get_kb(points);
-        cout << kb.first <<  "*x +  " << kb.second << endl;
-    }
-    
-    {
-        // input from source
-        vector<pair<double, double>> points = get_points();
-        vector<double> ks = get_ks(points);
-        for (auto k : ks) cout << k << " ";
-        cout << "\n-------------------\n";
-        pair<double, double> kb = get_kb(points);
-        cout << kb.first <<  "*x +  " << kb.second << endl;
-        cout << endl;
-    }
+    cout << "\n-------------------\n";
+
+    cout << "Simple with two params" << endl;
+    pair<double, double> kb = get_kb(points);
+    cout << kb.first <<  "*x + " << kb.second << endl;
+    cout << endl;
     
     return 0;
 }
