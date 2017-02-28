@@ -92,8 +92,8 @@ vector<double> get_ks(const vector<pair<double, double>>& points) {
             dk1 += -2 * points[i + j].first * skob; 
             
         }
-        dk0 /= (batch_size / 2);
-        dk1 /= (batch_size / 2);      
+        dk0 = (dk0 * 2) / batch_size;
+        dk1 = (dk1 * 2) / batch_size;      
 
         cout << "Derivatives: " << dk0 << ", " << dk1 << endl;
         
