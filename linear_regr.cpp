@@ -86,6 +86,7 @@ vector<double> get_ks(const vector<pair<double, double>>& points) {
         for (int j = 0; j < batch_size; ++j) {
 
             double skob = (points[i + j].second - (k0 + k1*points[i + j].first));
+            cout << "Skob: " << skob << endl;
 
             dk0 += -2 * skob;
             dk1 += -2 * points[i + j].first * skob; 
