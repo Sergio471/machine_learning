@@ -93,6 +93,8 @@ vector<double> get_ks(const vector<pair<double, double>>& points) {
         }
         dk0 /= (batch_size / 2);
         dk1 /= (batch_size / 2);      
+
+        cout << "Derivatives: " << dk0 << ", " << dk1 << endl;
         
         k0 = k0 - alpha_k0 * dk0;
         k1 = k1 - alpha_k1 * dk1;                   
