@@ -70,61 +70,45 @@ pair<double, double> get_kb(const vector<pair<double, double>>& points) {
 
 // stochastic gd
 vector<double> get_ks(const vector<pair<double, double>>& points) {
-    double k0 = 10.0, k1 = 10.0, k2 = 10.0, k3 = 10.0;
+    double k0 = 10.0, k1 = 10.0; // k0 - b, k1 - k
     
     double alpha_k0 = 0.0001;
     double alpha_k1 = 0.00001;
-    double alpha_k2 = 0.0000001;
-    double alpha_k3 = 0.0000000001;
     int N = points.size();
     double err = 0.0f;//1000000.0f;
     double dk0 = 0.0f;
     double dk1 = 0.0f;
-    double dk2 = 0.0f;
-    double dk3 = 0.0f;
-    int batch_size = 1000;
+    int batch_size = 1;
     for (int i = 0; i < points.size() - batch_size; i += batch_size) {
         
-        dk0 = dk1 = dk2 = dk3 = 0.0f;
+        dk0 = dk1 = 0.0f;
         
         for (int j = 0; j < batch_size; ++j) {
 
-            double skob = (points[i + j].second - (k0 + 
-                                              k1*points[i + j].first +
-                                              k2*pow(points[i + j].first, 2) +
-                                              k3*pow(points[i + j].first, 3)));
+            double skob = (points[i + j].second - (k0 + k1*points[i + j].first));
 
             dk0 += -2 * skob;
-            dk1 += -2 * points[i + j].first * skob;
-            dk2 += -2 * pow(points[i + j].first, 2) * skob;
-            dk3 += -2 * pow(points[i + j].first, 3) * skob;  
+            dk1 += -2 * points[i + j].first * skob; 
             
         }
         dk0 /= (batch_size / 2);
-        dk1 /= (batch_size / 2);
-        dk2 /= (batch_size / 2);
-        dk3 /= (batch_size / 2);        
+        dk1 /= (batch_size / 2);      
         
         k0 = k0 - alpha_k0 * dk0;
-        k1 = k1 - alpha_k1 * dk1;
-        k2 = k2 - alpha_k2 * dk2;
-        k3 = k3 - alpha_k3 * dk3;                      
+        k1 = k1 - alpha_k1 * dk1;                   
     }
                       
     err = 0.0f;
     for (int i = 0; i < points.size(); ++i) {
         
-        double skob = (points[i].second - (k0 + 
-                                          k1*points[i].first +
-                                          k2*pow(points[i].first, 2) +
-                                          k3*pow(points[i].first, 3)));
+        double skob = (points[i].second - (k0 + k1*points[i].first));
         skob *= skob;
         err += skob;
     }
     err /= points.size();    
     cout << "Stochastic err: " << err << endl;
     
-    return {k0, k1, k2, k3};
+    return {k0, k1};
 }
 
 int main() {
@@ -133,7 +117,7 @@ int main() {
     cout << "Stachastic with many params" << endl;
     const vector<pair<double, double>> points = get_points();
     vector<double> ks = get_ks(points);
-    cout << ks[0] << " + " << ks[1] << "*x + " << ks[2] << "*x^2 + " << ks[3] << "*x^3" << endl;
+    cout << ks[0] << " + " << ks[1] << "*x" << endl;
 
     cout << "\n-------------------\n";
 
