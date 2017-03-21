@@ -21,12 +21,24 @@ using namespace mlpack;
 int main()
 {
     arma::mat data; // The dataset itself.
-    arma::vec responses; // The responses, one row for each row in data.
+    data::Load("lin_regr_in_1.txt", data);
+
+    arma::vec responses = vectorise(data.row(1));
+
+    // Remove last row with target values
+    data.shed_row(1);
+    
+    cout << "Input values: \n";
+    data.print(cout);
+    cout << "Target values: \n";
+    responses.print(cout);
 
     LinearRegression lr(data, responses);
 
     // // Get the parameters, or coefficients.
     arma::vec parameters = lr.Parameters();
+
+    cout << "Regression line params: \n";
     parameters.print(cout);
 
     return 0;
